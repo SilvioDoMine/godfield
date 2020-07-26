@@ -1,11 +1,22 @@
 class Database {
-    constructor() {
-        console.log(`> Starting Database System`)
+    constructor(hostname, port = 3306, database, username, password) {
+        this.hostname = hostname
+        this.port = port
+        this.database = database
+        this.username = username
+        this.password = password
     }
 
-    loginCheck(request) {
-        if (request.type == 'loginCheck') {
-            console.log('> Check if user exists on database...')
-        }
+    loginCheck(data) {
+        console.log('Checking if user has logged in yet...')
+        console.log(data)
+    }
+
+    notifyAll() {
+
+    }
+
+    subscribe() {
+
     }
 } export default Database

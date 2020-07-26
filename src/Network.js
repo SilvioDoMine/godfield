@@ -1,65 +1,70 @@
-import express from 'express'
-import http from 'http'
 import socketio from 'socket.io'
 
-class Network {
-    
+class Network {    
+
+    /**
+     * Lista de Observadores da camada de Network
+     * @array
+     */
     observers = []
-    
-    data = {}
 
-    constructor() {
-        console.log('> Iniciando sistema de Networking...')
-
+    constructor(server){
+        this.server = server
         this.bootstrap()
-    }
-
-    bootstrap() {
-        this.app = express()
-        this.server = http.createServer(this.app)
-
-        this.bootstrapSocket()
-        this.bootstrapHttp()
-
+    
         this.registerListeners()
     }
 
-    bootstrapSocket() {
+    /**
+     * Bootstraps the whole application's Network
+     */
+    bootstrap() {
         this.sockets = socketio(this.server)
     }
 
-    bootstrapHttp() {
-        this.server.listen(3000, () => {
-            console.log(`> Server listening to port 3000`)
-        })
-
-        this.app.use(express.static('public'))
-    }
-
     registerListeners() {
+        this.sockets.on("connection", (socket) => {
+            console.log(`> ${socket.id}: just connected.`)
 
-        let self = this
-
-        this.sockets.on('connection', function(socket) {
-            console.log('> A user just connected to the server')
-
-            socket.on('login', function(userAndPassword) {
-                console.log(`A user tried to login`)
-                self.notifyAll({type: 'loginCheck', payload: userAndPassword})
-            
-                socket.emit('loginResponse', {message: 'Usuário e senha inválidos...'});
+            this.notifyAll({
+                type: 'playerConnection',
+                payload: {
+                    socketId: socket.id
+                }
             })
+
+            socket.on("disconnect", this.handleDisconnect)
         })
     }
 
-    subscribe(callback) {
-        this.observers.push(callback)
+    /**
+     * Lida com a desconecção de um jogador
+     * @param {socket} socket 
+     */
+    handleDisconnect() {
+        console.log(`> ${this.id}: just disconnected.`)
     }
 
-    notifyAll(command) {
-        for (const observerFunction of this.observers) {
-            observerFunction(command)
+    /**
+     * Inscreve uma função para ser executada sempre que
+     * uma ação da camada de Network acontecer.
+     * 
+     * @param {function} callbackFunction 
+     */
+    subscribe(callbackFunction)
+    {
+        this.observers.push(callbackFunction)
+    }
+
+    /**
+     * Dispara o evento de callback para todos os escutadores.
+     * 
+     * @param {string} command 
+     */
+    notifyAll(command)
+    {
+        for (const observerFunctions of this.observers) {
+            observerFunctions(command)
         }
     }
-
 } export default Network
