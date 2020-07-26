@@ -1,41 +1,83 @@
-import GameVisual from './GameVisual.js'
+// Exemplo
+// Meu exemplo
+let loginInputs = {}
+let actualPage = 'pageLogin'
 
-const canvas = document.getElementById('gameCanvas')
-const context = canvas.getContext('2d')
+function setup() {
+    loginInputs.login = createInput()
+    loginInputs.password = createInput('', 'password')
+    loginInputs.doLogin = createButton('Login')
+    loginInputs.doRegister = createButton('Register')
+    createCanvas(900, 600)
+}
 
-canvas.style = "border: 1px solid black;"
+function draw() {
+    let pageToDraw = window[actualPage]
 
-
-class Game {
-
-    gamePage = 'lobbyPage';
-
-    constructor(canvas, context) {
-        this.canvas = canvas
-        this.context = context
-
-        this.draw()
-    }
-
-    draw() {
-        // Executa a função que tem o nome da variável PAGE.
-        this[this.gamePage]();
-
-        requestAnimationFrame(this.draw())
-    }
-
-    lobbyPage() {
-        this.context.fillStyle = "#8dd6df";
-        this.context.fillRect(0, 0, this.canvas.height, this.canvas.width)
-
-        this.context.fillStyle = "#238938"
-        this.context.fillRect(50, 50, (this.canvas.height * 0.3), (this.canvas.width * 0.1))
-        this.context.fillRect(510, 50, (this.canvas.height * 0.3), (this.canvas.width * 0.1))
-
-        this.context.fillStyle = "#FFFFFF"
-        this.context.font = "60px Arial"
-        this.context.fillText("SOLO", 90, 110)
+    if (pageToDraw) {
+        pageToDraw()
+    } else {
+        console.log('Error!! Página não encontrada.')
     }
 }
 
-const game = new Game(canvas, context)
+
+let loginError = ''
+function pageLogin() {
+    background(225)
+
+    fill(0)
+    text('Username:', 375, 285)
+    loginInputs.login.position(375, 300)
+    text('Password:', 375, 335)
+    loginInputs.password.position(375, 350)
+    loginInputs.doLogin.position(500, 385)
+    loginInputs.doRegister.position(375, 385)
+    fill(255, 0, 0)
+    text(loginError, 345, 250)
+
+    loginInputs.doRegister.mousePressed(function(){
+        
+        for (let input in loginInputs) {
+            loginInputs[input].hide()
+        }
+
+        actualPage = 'pageRegister'       
+    })
+
+    loginInputs.doLogin.mousePressed(doLogin)
+
+    //console.log('Login')
+}
+
+function pageRegister() {
+    background(255, 0, 200)
+    console.log('Register')
+}
+
+function pageLobby() {
+    background(0)
+    console.log('Lobby')
+}
+
+
+
+const socket = io()
+
+function doLogin() {
+    let login = loginInputs.login.value()
+    let password = loginInputs.password.value()
+    
+    console.log(`Tentando logar o usuário com o login (${login}) e senha (${password}).`)
+
+    socket.emit('login', `${login}||${password}`);
+}
+
+socket.on("connection", function(socket){
+    console.log('conectado!')
+})
+
+socket.on('loginResponse', function(response){
+    console.log(response)
+    loginError = response.message
+})

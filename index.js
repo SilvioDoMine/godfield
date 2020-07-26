@@ -1,11 +1,9 @@
-import express from 'express'
-import http from 'http'
+import networkgame from './src/Network.js'
+import databasegame from './src/Database.js'
 
-const app = express()
-const server = http.createServer(app)
+const Network = new networkgame;
+const Database = new databasegame;
 
-app.use(express.static('public'))
+Network.subscribe(Database.loginCheck)
 
-server.listen(3000, () => {
-    console.log(`> Server listening to port 3000`)
-})
+console.log(Network.observers)
