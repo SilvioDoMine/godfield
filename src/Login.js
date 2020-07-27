@@ -1,6 +1,6 @@
 class Login {
 
-    observers = []
+    static observers = []
 
     checkForLogin(data) {
         if (data.type != 'playerConnection')
@@ -9,11 +9,18 @@ class Login {
         let socketId = data.payload.socketId;
 
         console.log(`> Checking if user ${socketId} is already logged in`)
+
+        Login.notifyAll(data.payload)
         
     }
 
-    notifyAll() {
-        for (const observerFunction of this.observers) {
+    static subscribe(callbackFunction)
+    {
+        Login.observers.push(callbackFunction)
+    }
+
+    static notifyAll(command) {
+        for (const observerFunction of Login.observers) {
             observerFunction(command)
         }
     }

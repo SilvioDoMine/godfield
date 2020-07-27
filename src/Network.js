@@ -6,7 +6,7 @@ class Network {
      * Lista de Observadores da camada de Network
      * @array
      */
-    observers = []
+    static observers = []
 
     constructor(server){
         this.server = server
@@ -26,7 +26,7 @@ class Network {
         this.sockets.on("connection", (socket) => {
             console.log(`> ${socket.id}: just connected.`)
 
-            this.notifyAll({
+            Network.notifyAll({
                 type: 'playerConnection',
                 payload: {
                     socketId: socket.id
@@ -51,9 +51,9 @@ class Network {
      * 
      * @param {function} callbackFunction 
      */
-    subscribe(callbackFunction)
+    static subscribe(callbackFunction)
     {
-        this.observers.push(callbackFunction)
+        Network.observers.push(callbackFunction)
     }
 
     /**
@@ -61,9 +61,9 @@ class Network {
      * 
      * @param {string} command 
      */
-    notifyAll(command)
+    static notifyAll(command)
     {
-        for (const observerFunctions of this.observers) {
+        for (const observerFunctions of Network.observers) {
             observerFunctions(command)
         }
     }

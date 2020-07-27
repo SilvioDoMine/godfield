@@ -5,7 +5,7 @@ import DatabaseClass from './src/Database.js'
 import LoginClass from './src/Login.js'
 
 const SERVER_PORT = 3000
-const DB_HOST = 'localhost'
+const DB_HOST = '127.0.0.1'
 const DB_PORT = 3306
 const DB_DATABASE = 'godfield'
 const DB_USERNAME = 'root'
@@ -16,9 +16,10 @@ const server = http.createServer(app)
 
 const Database = new DatabaseClass(DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
 const Network = new NetworkClass(server)
-const Login = new LoginClass;
+const Login = new LoginClass
 
-Network.subscribe(Login.checkForLogin)
+NetworkClass.subscribe(Login.checkForLogin)
+LoginClass.subscribe(Database.loginCheck)
 
 
 
